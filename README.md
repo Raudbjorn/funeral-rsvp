@@ -1,89 +1,110 @@
 # Funeral Service RSVP & Carpool App
 
-A simple, secure web application for organizing RSVPs, carpool coordination, and photo sharing for a funeral service.
+A secure web application for organizing RSVPs, carpool coordination, and photo sharing for a funeral service.
 
-## Features
+## 🚀 Quick Deploy Options
 
-- **RSVP System**: Guest count tracking with optional messages
-- **Carpool Coordination**: Driver registration and passenger matching
-- **Photo Album**: Share memories with upload functionality
-- **Security**: Rate limiting, spam detection, and geographic restrictions
-- **Google Maps Integration**: Route visualization for carpools
-
-## Quick Start
-
-1. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-2. **Set up Google Maps API** (optional):
-   - Copy `.env.example` to `.env.local`
-   - Get an API key from [Google Maps Platform](https://developers.google.com/maps/documentation/javascript/get-api-key)
-   - Add your API key to `.env.local`
-
-3. **Run the development server**:
-   ```bash
-   npm run dev
-   ```
-
-4. **Open your browser** to [http://localhost:3000](http://localhost:3000)
-
-## Deployment
-
-### 🐳 Production Deployment (Recommended)
-
-For a secure, production-ready deployment with SSL, security, and monitoring:
-
+### Option 1: Direct VPS Deployment
 ```bash
-# Quick setup with Docker Compose
-./scripts/setup.sh
+./deploy.sh
 ```
 
-This includes:
-- **Nginx** reverse proxy with SSL termination
-- **CrowdSec** intrusion detection and prevention  
-- **Certbot** automatic SSL certificates (Porkbun DNS-01)
-- **Redis** for distributed rate limiting
-- **Automated backups** and monitoring
+### Option 2: GitHub Actions (Recommended)
+```bash
+# Setup GitHub secrets
+./scripts/setup-github-secrets.sh username/repository-name
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
+# Push to trigger deployment
+git push origin main
+```
 
-### ☁️ Simple Deployment
+## ✨ Features
 
-For development or simple hosting:
+- **RSVP System**: Guest count tracking with optional messages
+- **Carpool Coordination**: Driver registration and passenger matching  
+- **Photo Album**: Share memories with upload functionality
+- **Security**: Rate limiting, spam detection, geographic restrictions
+- **Admin Dashboard**: Complete management interface via Tailscale
+- **Internationalization**: English/Icelandic support
+- **Mobile Optimized**: Touch-friendly responsive design
 
-- **Vercel** (recommended): `npx vercel`
-- **Netlify**: Build command: `npm run build`, Publish directory: `out`
-- **Other hosts**: Run `npm run build` and serve the `.next` folder
+## 🛡️ Security & Admin Features
 
-## Security Features
+### Admin Interfaces (Tailscale-only access)
+- **App Admin**: RSVP & content management
+- **CrowdSec Dashboard**: Real-time security monitoring
+- **Redis Commander**: Database management
+- **System Monitoring**: Performance metrics (Netdata)
+- **Container Management**: Docker administration (Portainer)
+- **Live Logs**: Real-time log streaming (Dozzle)
+- **File Manager**: Upload/backup management
 
-- Rate limiting (3 RSVPs, 5 carpool entries, 10 photos per time period)
-- Spam detection for text content
-- File type and size validation for photos
-- Geographic rate limiting for non-Iceland IPs
-- Input validation and sanitization
+### Access Methods
+1. **Native Tailscale**: `memorial-admin.cougar-cloud.ts.net/*`
+2. **Split DNS**: `admin.joi.taxi`, `files.joi.taxi`, etc. (requires Tailscale DNS setup)
 
-## Data Storage
+## 🔧 Local Development
 
-Data is stored in JSON files in the `data/` directory:
-- `rsvps.json` - RSVP responses
-- `drivers.json` - Driver registrations
-- `passengers.json` - Passenger requests
-- `photos.json` - Photo metadata
+```bash
+# Install dependencies
+npm install
 
-Photos are stored in `public/uploads/`
+# Set up environment variables
+cp .env.example .env.local
 
-## API Endpoints
+# Run development server
+npm run dev
+```
 
-- `GET/POST /api/rsvp` - RSVP management
-- `GET /api/carpool` - Get carpool data
-- `POST /api/carpool/driver` - Register as driver
-- `POST /api/carpool/passenger` - Request ride
-- `GET/POST /api/photos` - Photo management
-- `GET /api/photos/[filename]` - Serve photos
+## 📦 Production Stack
 
-## License
+- **Next.js 15**: React application framework
+- **Redis**: Rate limiting and session storage
+- **Nginx**: Reverse proxy with SSL
+- **CrowdSec**: Intrusion detection/prevention
+- **Tailscale**: Secure admin network access
+- **Docker Compose**: Container orchestration
+- **Certbot**: Automatic SSL certificates
+- **Monitoring**: Netdata, Portainer, Dozzle
 
-This project is intended for temporary use for memorial services. Feel free to modify as needed.
+## 🌐 Deployment Targets
+
+- **VPS**: Your server IP address
+- **Domain**: Your domain name
+- **Admin Access**: Tailscale network required
+
+## 📚 Documentation
+
+- [Deployment Guide](DEPLOYMENT.md) - Complete setup instructions
+- [GitHub Actions Setup](scripts/setup-github-secrets.sh) - Automated deployment
+- [Split DNS Setup](scripts/setup-split-dns.sh) - Alternative admin access
+
+## 🔍 Quick Commands
+
+```bash
+# Deploy to VPS
+./deploy.sh
+
+# Update existing deployment  
+./scripts/quick-deploy.sh
+
+# View logs
+./scripts/logs.sh [service-name]
+
+# Backup data
+./scripts/backup.sh
+
+# Setup GitHub automation
+./scripts/setup-github-secrets.sh username/repo
+```
+
+## 🆘 Support & Monitoring
+
+- **Health Check**: `curl https://your-domain.com/api/health`
+- **Container Status**: `docker-compose ps`
+- **Live Logs**: Admin dashboard or `./scripts/logs.sh`
+- **SSH Access**: `ssh your-user@your-server-ip`
+
+---
+
+Built with ❤️ for remembering those we've lost.

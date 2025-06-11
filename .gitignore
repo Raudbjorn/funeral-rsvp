@@ -17,6 +17,9 @@ dist/
 .env.test.local
 .env.production.local
 
+# Production environment file with secrets
+.env.production.secrets
+
 # Data files (contains RSVP and carpool data)
 data/
 

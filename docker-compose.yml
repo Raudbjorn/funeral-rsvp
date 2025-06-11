@@ -101,8 +101,11 @@ services:
       - nginx-logs:/var/log/nginx:ro
       - /var/log/auth.log:/var/log/auth.log:ro
       - ./crowdsec/acquis.yaml:/etc/crowdsec/acquis.yaml:ro
+    ports:
+      - "127.0.0.1:8080:8080"  # CrowdSec Local API (localhost only)
     networks:
       - crowdsec-network
+      - app-network
     healthcheck:
       test: ["CMD", "cscli", "metrics"]
       interval: 30s
@@ -123,6 +126,101 @@ services:
       - crowdsec-network
     depends_on:
       - crowdsec
+
+  # CrowdSec Dashboard (Web UI)
+  crowdsec-dashboard:
+    image: crowdsecurity/dashboard
+    container_name: memorial-crowdsec-dashboard
+    restart: unless-stopped
+    environment:
+      - CROWDSEC_API_URL=http://crowdsec:8080
+      - CROWDSEC_API_KEY=${CROWDSEC_DASHBOARD_API_KEY}
+    networks:
+      - crowdsec-network
+      - app-network
+    depends_on:
+      - crowdsec
+
+  # Redis Admin Interface
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: memorial-redis-admin
+    restart: unless-stopped
+    environment:
+      - REDIS_HOSTS=memorial:redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - HTTP_USER=admin
+      - HTTP_PASSWORD=${REDIS_PASSWORD}
+    networks:
+      - app-network
+    depends_on:
+      - redis
+
+  # System Monitoring Dashboard
+  netdata:
+    image: netdata/netdata:latest
+    container_name: memorial-monitoring
+    restart: unless-stopped
+    pid: host
+    network_mode: host
+    volumes:
+      - netdataconfig:/etc/netdata
+      - netdatalib:/var/lib/netdata
+      - netdatacache:/var/cache/netdata
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    environment:
+      - NETDATA_CLAIM_TOKEN=${NETDATA_CLAIM_TOKEN:-}
+      - NETDATA_CLAIM_URL=https://app.netdata.cloud
+
+  # Container Management
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: memorial-portainer
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    networks:
+      - app-network
+
+  # Log Viewer
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: memorial-logs
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - DOZZLE_NO_ANALYTICS=true
+      - DOZZLE_LEVEL=info
+    networks:
+      - app-network
+
+  # File Manager for uploads and backups
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: memorial-files
+    restart: unless-stopped
+    volumes:
+      - ./data:/srv/data
+      - ./public/uploads:/srv/uploads
+      - ./backups:/srv/backups
+      - ./filebrowser.db:/database.db
+      - ./filebrowser.json:/config.json
+    environment:
+      - FB_DATABASE=/database.db
+      - FB_CONFIG=/config.json
+    networks:
+      - app-network
 
   # Watchtower for automatic updates
   watchtower:
@@ -191,3 +289,7 @@ volumes:
   certbot-web:
   nginx-logs:
   tailscale-state:
+  netdataconfig:
+  netdatalib:
+  netdatacache:
+  portainer-data:
