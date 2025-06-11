@@ -80,7 +80,7 @@ export default function Home() {
 
           <div className="bg-stone-50/80 dark:bg-navy-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-stone-200/50 dark:border-navy-700/50">
             <div className="border-b border-stone-200/60 dark:border-navy-700/60">
-              <nav className="flex space-x-4 sm:space-x-8 lg:space-x-12 px-4 sm:px-8 justify-center overflow-x-auto"
+              <nav className="flex space-x-4 sm:space-x-8 lg:space-x-12 px-4 sm:px-8 justify-center overflow-x-auto">
                 <button
                   onClick={() => setActiveTab('rsvp')}
                   className={`py-4 sm:py-6 text-sm font-medium border-b-2 transition-all duration-200 whitespace-nowrap ${

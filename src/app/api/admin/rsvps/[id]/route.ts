@@ -32,15 +32,16 @@ async function writeRSVPs(rsvps: RSVP[]) {
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   if (!isTailscaleRequest(request)) {
     return NextResponse.json({ error: 'Access denied' }, { status: 403 })
   }
 
   try {
+    const resolvedParams = await params
     const rsvps = await readRSVPs()
-    const filteredRsvps = rsvps.filter(r => r.id !== params.id)
+    const filteredRsvps = rsvps.filter(r => r.id !== resolvedParams.id)
     
     if (filteredRsvps.length === rsvps.length) {
       return NextResponse.json({ error: 'RSVP not found' }, { status: 404 })
