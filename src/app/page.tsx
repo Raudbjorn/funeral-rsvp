@@ -4,21 +4,38 @@ import { useState } from 'react'
 import RSVPForm from '@/components/RSVPForm'
 import CarpoolForm from '@/components/CarpoolForm'
 import PhotoAlbum from '@/components/PhotoAlbum'
+import CalendarButton from '@/components/CalendarButton'
+import LanguageToggle from '@/components/LanguageToggle'
+import { Language, useTranslation } from '@/lib/i18n'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'rsvp' | 'carpool' | 'photos'>('rsvp')
+  const [language, setLanguage] = useState<Language>('en')
+  const t = useTranslation(language)
 
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
+          {/* Language toggle in top right */}
+          <div className="flex justify-end mb-6">
+            <LanguageToggle 
+              currentLanguage={language}
+              onLanguageChange={setLanguage}
+            />
+          </div>
+          
           <header className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Memorial Service
+              {t.memorialService}
             </h1>
-            <p className="text-lg text-gray-600">
-              Linnetsstígur 6, 220 Hafnarfjörður
-            </p>
+            <div className="text-lg text-gray-600 mb-4">
+              <p>Linnetsstígur 6, 220 Hafnarfjörður</p>
+              <p className="text-xl font-semibold text-gray-800 mt-2">
+                📅 13:00 / 1:00 PM
+              </p>
+            </div>
+            <CalendarButton />
           </header>
 
           <div className="bg-white rounded-lg shadow-lg">
@@ -32,7 +49,7 @@ export default function Home() {
                       : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  RSVP
+                  {t.rsvp}
                 </button>
                 <button
                   onClick={() => setActiveTab('carpool')}
@@ -42,7 +59,7 @@ export default function Home() {
                       : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  Carpool
+                  {t.carpool}
                 </button>
                 <button
                   onClick={() => setActiveTab('photos')}
@@ -52,15 +69,15 @@ export default function Home() {
                       : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  Photos
+                  {t.photos}
                 </button>
               </nav>
             </div>
 
             <div className="p-6">
-              {activeTab === 'rsvp' && <RSVPForm />}
-              {activeTab === 'carpool' && <CarpoolForm />}
-              {activeTab === 'photos' && <PhotoAlbum />}
+              {activeTab === 'rsvp' && <RSVPForm language={language} />}
+              {activeTab === 'carpool' && <CarpoolForm language={language} />}
+              {activeTab === 'photos' && <PhotoAlbum language={language} />}
             </div>
           </div>
         </div>

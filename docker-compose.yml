@@ -137,6 +137,32 @@ services:
       - WATCHTOWER_INCLUDE_STOPPED=true
     command: --interval 3600 --cleanup
 
+  # Tailscale sidecar for admin access
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: memorial-tailscale
+    hostname: memorial-admin
+    restart: unless-stopped
+    environment:
+      - TS_AUTHKEY=${TAILSCALE_AUTHKEY}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=false
+      - TS_SERVE_CONFIG=/config/serve.json
+    volumes:
+      - tailscale-state:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+      - ./tailscale:/config:ro
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv6.conf.all.forwarding=1
+    networks:
+      - app-network
+    depends_on:
+      - app
+
   # Log aggregation
   promtail:
     image: grafana/promtail
@@ -164,3 +190,4 @@ volumes:
   certbot-certs:
   certbot-web:
   nginx-logs:
+  tailscale-state:

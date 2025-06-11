@@ -2,8 +2,14 @@
 
 import { useState } from 'react'
 import { RSVP } from '@/types'
+import { Language, useTranslation } from '@/lib/i18n'
 
-export default function RSVPForm() {
+interface RSVPFormProps {
+  language: Language
+}
+
+export default function RSVPForm({ language }: RSVPFormProps) {
+  const t = useTranslation(language)
   const [formData, setFormData] = useState<Partial<RSVP>>({
     name: '',
     email: '',
@@ -48,16 +54,16 @@ export default function RSVPForm() {
     return (
       <div className="text-center py-8">
         <div className="text-green-600 text-xl font-semibold mb-4">
-          Thank you for responding!
+          {t.thankYou}
         </div>
         <p className="text-gray-600 mb-4">
-          Your RSVP has been recorded.
+          {t.rsvpRecorded}
         </p>
         <button
           onClick={() => setSubmitted(false)}
           className="text-blue-600 underline"
         >
-          Submit another response
+          {t.submitAnother}
         </button>
       </div>
     )
@@ -65,12 +71,12 @@ export default function RSVPForm() {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-6">RSVP</h2>
+      <h2 className="text-2xl font-semibold mb-6">{t.rsvpTitle}</h2>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-            Name *
+            {t.name} {t.required}
           </label>
           <input
             type="text"
@@ -84,7 +90,7 @@ export default function RSVPForm() {
 
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-            Email (optional)
+            {t.emailOptional}
           </label>
           <input
             type="email"
@@ -97,7 +103,7 @@ export default function RSVPForm() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Will you be attending? *
+            {t.willYouAttend} {t.required}
           </label>
           <div className="space-y-2">
             <label className="flex items-center">
@@ -108,7 +114,7 @@ export default function RSVPForm() {
                 onChange={() => setFormData({...formData, attending: true})}
                 className="mr-2"
               />
-              Yes, I will attend
+              {t.yesAttend}
             </label>
             <label className="flex items-center">
               <input
@@ -118,7 +124,7 @@ export default function RSVPForm() {
                 onChange={() => setFormData({...formData, attending: false})}
                 className="mr-2"
               />
-              No, I cannot attend
+              {t.noAttend}
             </label>
           </div>
         </div>
@@ -126,7 +132,7 @@ export default function RSVPForm() {
         {formData.attending && (
           <div>
             <label htmlFor="guestCount" className="block text-sm font-medium text-gray-700 mb-2">
-              Number of guests (including yourself) *
+              {t.guestCount} {t.required}
             </label>
             <select
               id="guestCount"
@@ -143,14 +149,14 @@ export default function RSVPForm() {
 
         <div>
           <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-            Message (optional)
+            {t.messageOptional}
           </label>
           <textarea
             id="message"
             rows={4}
             value={formData.message}
             onChange={(e) => setFormData({...formData, message: e.target.value})}
-            placeholder="Share a memory or leave a message..."
+            placeholder={t.messagePlaceholder}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -160,7 +166,7 @@ export default function RSVPForm() {
           disabled={isSubmitting}
           className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? 'Submitting...' : 'Submit RSVP'}
+          {isSubmitting ? t.submitting : t.submitRsvp}
         </button>
       </form>
     </div>
