@@ -1,9 +1,14 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Crimson_Text } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
 
 const inter = Inter({ subsets: ['latin'] })
+const crimsonText = Crimson_Text({ 
+  subsets: ['latin'], 
+  weight: ['400', '600'],
+  variable: '--font-crimson'
+})
 
 export const metadata: Metadata = {
   title: 'Funeral | Fríkirkjan í Hafnarfirði',
@@ -62,7 +67,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.className} ${crimsonText.variable}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

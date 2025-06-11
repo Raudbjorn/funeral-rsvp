@@ -9,13 +9,13 @@ interface LanguageToggleProps {
 
 export default function LanguageToggle({ currentLanguage, onLanguageChange }: LanguageToggleProps) {
   return (
-    <div className="flex items-center space-x-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-1">
+    <div className="flex items-center space-x-1 bg-stone-50/90 dark:bg-navy-800/90 backdrop-blur-sm rounded-lg shadow-sm border border-stone-200/60 dark:border-navy-700/60 p-1">
       <button
         onClick={() => onLanguageChange('en')}
         className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
           currentLanguage === 'en'
-            ? 'bg-blue-600 text-white'
-            : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
+            ? 'bg-navy-600 dark:bg-lavender-600 text-stone-50'
+            : 'text-stone-600 dark:text-stone-300 hover:text-stone-800 dark:hover:text-stone-100'
         }`}
       >
         🇺🇸 EN
@@ -24,8 +24,8 @@ export default function LanguageToggle({ currentLanguage, onLanguageChange }: La
         onClick={() => onLanguageChange('is')}
         className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
           currentLanguage === 'is'
-            ? 'bg-blue-600 text-white'
-            : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100'
+            ? 'bg-navy-600 dark:bg-lavender-600 text-stone-50'
+            : 'text-stone-600 dark:text-stone-300 hover:text-stone-800 dark:hover:text-stone-100'
         }`}
       >
         🇮🇸 IS

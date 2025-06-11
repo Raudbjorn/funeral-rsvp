@@ -53,15 +53,15 @@ export default function RSVPForm({ language }: RSVPFormProps) {
   if (submitted) {
     return (
       <div className="text-center py-8">
-        <div className="text-green-600 text-xl font-semibold mb-4">
+        <div className="text-navy-700 dark:text-lavender-400 text-xl font-semibold mb-4">
           {t.thankYou}
         </div>
-        <p className="text-gray-600 mb-4">
+        <p className="text-stone-600 dark:text-stone-300 mb-4">
           {t.rsvpRecorded}
         </p>
         <button
           onClick={() => setSubmitted(false)}
-          className="text-blue-600 underline"
+          className="text-navy-600 dark:text-lavender-400 underline hover:text-navy-700 dark:hover:text-lavender-300 transition-colors"
         >
           {t.submitAnother}
         </button>
@@ -71,11 +71,11 @@ export default function RSVPForm({ language }: RSVPFormProps) {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">{t.rsvpTitle}</h2>
+      <h2 className="text-xl sm:text-2xl font-serif font-semibold mb-6 text-navy-800 dark:text-stone-100">{t.rsvpTitle}</h2>
       
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="name" className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
             {t.name} {t.required}
           </label>
           <input
@@ -84,12 +84,12 @@ export default function RSVPForm({ language }: RSVPFormProps) {
             required
             value={formData.name}
             onChange={(e) => setFormData({...formData, name: e.target.value})}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-stone-300 dark:border-navy-600 rounded-lg bg-stone-50 dark:bg-navy-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-navy-500 dark:focus:ring-lavender-500 transition-colors text-base"
           />
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="email" className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
             {t.emailOptional}
           </label>
           <input
@@ -97,32 +97,32 @@ export default function RSVPForm({ language }: RSVPFormProps) {
             id="email"
             value={formData.email}
             onChange={(e) => setFormData({...formData, email: e.target.value})}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-stone-300 dark:border-navy-600 rounded-lg bg-stone-50 dark:bg-navy-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-navy-500 dark:focus:ring-lavender-500 transition-colors text-base"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
             {t.willYouAttend} {t.required}
           </label>
-          <div className="space-y-2">
-            <label className="flex items-center">
+          <div className="space-y-3">
+            <label className="flex items-center p-3 border border-stone-200 dark:border-navy-700 rounded-lg hover:bg-stone-50 dark:hover:bg-navy-800/50 transition-colors cursor-pointer">
               <input
                 type="radio"
                 name="attending"
                 checked={formData.attending === true}
                 onChange={() => setFormData({...formData, attending: true})}
-                className="mr-2"
+                className="mr-3 w-4 h-4 text-navy-600 dark:text-lavender-500"
               />
               {t.yesAttend}
             </label>
-            <label className="flex items-center">
+            <label className="flex items-center p-3 border border-stone-200 dark:border-navy-700 rounded-lg hover:bg-stone-50 dark:hover:bg-navy-800/50 transition-colors cursor-pointer">
               <input
                 type="radio"
                 name="attending"
                 checked={formData.attending === false}
                 onChange={() => setFormData({...formData, attending: false})}
-                className="mr-2"
+                className="mr-3 w-4 h-4 text-navy-600 dark:text-lavender-500"
               />
               {t.noAttend}
             </label>
@@ -131,14 +131,14 @@ export default function RSVPForm({ language }: RSVPFormProps) {
 
         {formData.attending && (
           <div>
-            <label htmlFor="guestCount" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="guestCount" className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
               {t.guestCount} {t.required}
             </label>
             <select
               id="guestCount"
               value={formData.guestCount}
               onChange={(e) => setFormData({...formData, guestCount: parseInt(e.target.value)})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-stone-300 dark:border-navy-600 rounded-lg bg-stone-50 dark:bg-navy-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-navy-500 dark:focus:ring-lavender-500 transition-colors text-base resize-none"
             >
               {[1,2,3,4,5,6,7,8,9,10].map(num => (
                 <option key={num} value={num}>{num}</option>
@@ -148,7 +148,7 @@ export default function RSVPForm({ language }: RSVPFormProps) {
         )}
 
         <div>
-          <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="message" className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
             {t.messageOptional}
           </label>
           <textarea
@@ -157,14 +157,14 @@ export default function RSVPForm({ language }: RSVPFormProps) {
             value={formData.message}
             onChange={(e) => setFormData({...formData, message: e.target.value})}
             placeholder={t.messagePlaceholder}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-stone-300 dark:border-navy-600 rounded-lg bg-stone-50 dark:bg-navy-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-navy-500 dark:focus:ring-lavender-500 transition-colors text-base resize-none"
           />
         </div>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-navy-600 dark:bg-lavender-600 text-stone-50 py-3 px-6 rounded-lg hover:bg-navy-700 dark:hover:bg-lavender-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium text-base shadow-sm"
         >
           {isSubmitting ? t.submitting : t.submitRsvp}
         </button>

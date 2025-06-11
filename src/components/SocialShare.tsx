@@ -70,7 +70,7 @@ export default function SocialShare() {
     <div className="relative">
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+        className="inline-flex items-center px-6 py-3 bg-lavender-600 dark:bg-navy-600 text-stone-50 rounded-lg hover:bg-lavender-700 dark:hover:bg-navy-700 transition-all duration-200 font-medium shadow-sm"
       >
         📱 Share
         <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,18 +79,18 @@ export default function SocialShare() {
       </button>
 
       {showDropdown && (
-        <div className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 z-10">
-          <div className="py-1">
+        <div className="absolute top-full left-0 mt-2 w-56 bg-stone-50/95 dark:bg-navy-800/95 backdrop-blur-sm rounded-lg shadow-xl border border-stone-200/80 dark:border-navy-700/80 z-10">
+          <div className="py-2">
             <button
               onClick={handleFacebookShare}
-              className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
+              className="w-full text-left px-4 py-3 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100/80 dark:hover:bg-navy-700/60 flex items-center transition-colors duration-200"
             >
               <span className="mr-2">📘</span>
               Share on Facebook
             </button>
             <button
               onClick={handleInstagramShare}
-              className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
+              className="w-full text-left px-4 py-3 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100/80 dark:hover:bg-navy-700/60 flex items-center transition-colors duration-200"
             >
               <span className="mr-2">📷</span>
               Copy for Instagram
@@ -98,7 +98,7 @@ export default function SocialShare() {
             {typeof navigator !== 'undefined' && 'share' in navigator && (
               <button
                 onClick={handleNativeShare}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
+                className="w-full text-left px-4 py-3 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100/80 dark:hover:bg-navy-700/60 flex items-center transition-colors duration-200"
               >
                 <span className="mr-2">📤</span>
                 Share via Apps
@@ -106,7 +106,7 @@ export default function SocialShare() {
             )}
             <button
               onClick={handleCopyLink}
-              className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
+              className="w-full text-left px-4 py-3 text-sm text-stone-700 dark:text-stone-200 hover:bg-stone-100/80 dark:hover:bg-navy-700/60 flex items-center transition-colors duration-200"
             >
               <span className="mr-2">🔗</span>
               Copy Link
