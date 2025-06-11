@@ -1,28 +1,50 @@
-import { RateLimiterMemory } from 'rate-limiter-flexible'
+import { RateLimiterMemory, RateLimiterRedis } from 'rate-limiter-flexible'
+import Redis from 'ioredis'
+
+// Redis client setup
+const redis = process.env.REDIS_URL 
+  ? new Redis(process.env.REDIS_URL)
+  : null
+
+// Use Redis if available, otherwise fallback to memory
+const createLimiter = (options: any) => {
+  if (redis) {
+    return new RateLimiterRedis({
+      storeClient: redis,
+      ...options
+    })
+  }
+  return new RateLimiterMemory(options)
+}
 
 // Different rate limiters for different endpoints
-export const rsvpLimiter = new RateLimiterMemory({
+export const rsvpLimiter = createLimiter({
+  keyPrefix: 'rsvp',
   points: 3, // Number of requests
   duration: 300, // Per 5 minutes
 })
 
-export const carpoolLimiter = new RateLimiterMemory({
+export const carpoolLimiter = createLimiter({
+  keyPrefix: 'carpool',
   points: 5, // Number of requests
   duration: 300, // Per 5 minutes
 })
 
-export const photoLimiter = new RateLimiterMemory({
+export const photoLimiter = createLimiter({
+  keyPrefix: 'photo',
   points: 10, // Number of uploads
   duration: 3600, // Per hour
 })
 
-export const generalLimiter = new RateLimiterMemory({
+export const generalLimiter = createLimiter({
+  keyPrefix: 'general',
   points: 50, // Number of requests
   duration: 900, // Per 15 minutes
 })
 
 // Geographic rate limiting (stricter for non-Iceland IPs)
-export const geographicLimiter = new RateLimiterMemory({
+export const geographicLimiter = createLimiter({
+  keyPrefix: 'geo',
   points: 1, // Very restrictive for non-Iceland
   duration: 3600, // Per hour
 })

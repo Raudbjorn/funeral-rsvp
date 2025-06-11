@@ -31,7 +31,27 @@ A simple, secure web application for organizing RSVPs, carpool coordination, and
 
 ## Deployment
 
-This app can be deployed to any platform that supports Next.js:
+### 🐳 Production Deployment (Recommended)
+
+For a secure, production-ready deployment with SSL, security, and monitoring:
+
+```bash
+# Quick setup with Docker Compose
+./scripts/setup.sh
+```
+
+This includes:
+- **Nginx** reverse proxy with SSL termination
+- **CrowdSec** intrusion detection and prevention  
+- **Certbot** automatic SSL certificates (Porkbun DNS-01)
+- **Redis** for distributed rate limiting
+- **Automated backups** and monitoring
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
+
+### ☁️ Simple Deployment
+
+For development or simple hosting:
 
 - **Vercel** (recommended): `npx vercel`
 - **Netlify**: Build command: `npm run build`, Publish directory: `out`
