@@ -1,7 +1,7 @@
 {
-  "name": "Memorial Service RSVP",
-  "short_name": "Memorial",
-  "description": "RSVP and carpool coordination for memorial service at Fríkirkjan í Hafnarfirði",
+  "name": "Funeral Service RSVP",
+  "short_name": "Funeral",
+  "description": "RSVP and carpool coordination for funeral service at Fríkirkjan í Hafnarfirði",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -25,7 +25,7 @@
       "type": "image/png"
     }
   ],
-  "categories": ["memorial", "event", "rsvp"],
+  "categories": ["funeral", "event", "rsvp"],
   "lang": "en-US",
   "dir": "ltr",
   "screenshots": [

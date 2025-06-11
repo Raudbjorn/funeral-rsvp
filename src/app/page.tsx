@@ -31,7 +31,7 @@ export default function Home() {
           
           <header className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              {t.memorialService}
+              {t.funeral}
             </h1>
             <div className="text-lg text-gray-600 dark:text-gray-300 mb-4">
               <div className="mb-2">

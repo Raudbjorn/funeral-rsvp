@@ -6,17 +6,17 @@ import { ThemeProvider } from '@/components/ThemeProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Memorial Service | Fríkirkjan í Hafnarfirði',
-  description: 'Join us for a memorial service at Fríkirkjan í Hafnarfirði on June 16th, 2025 at 1:00 PM. RSVP, coordinate carpools, and share memories.',
-  keywords: 'memorial service, RSVP, carpool, Hafnarfjörður, Iceland, Fríkirkjan',
-  authors: [{ name: 'Memorial Service Organizers' }],
+  title: 'Funeral | Fríkirkjan í Hafnarfirði',
+  description: 'Join us for a funeral service at Fríkirkjan í Hafnarfirði on June 16th, 2025 at 1:00 PM. RSVP, coordinate carpools, and share memories.',
+  keywords: 'funeral, RSVP, carpool, Hafnarfjörður, Iceland, Fríkirkjan, jarðarför',
+  authors: [{ name: 'Funeral Service Organizers' }],
   
   // Open Graph / Facebook
   openGraph: {
-    title: 'Memorial Service | Fríkirkjan í Hafnarfirði',
-    description: 'Join us for a memorial service on June 16th, 2025 at 1:00 PM. RSVP, coordinate carpools, and share memories.',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://memorial-service.com',
-    siteName: 'Memorial Service',
+    title: 'Funeral | Fríkirkjan í Hafnarfirði',
+    description: 'Join us for a funeral service on June 16th, 2025 at 1:00 PM. RSVP, coordinate carpools, and share memories.',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://funeral-service.com',
+    siteName: 'Funeral Service',
     locale: 'en_US',
     type: 'website',
     images: [
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Memorial Service - June 16th, 2025',
+        alt: 'Funeral Service - June 16th, 2025',
       },
     ],
   },
@@ -32,8 +32,8 @@ export const metadata: Metadata = {
   // Twitter Card
   twitter: {
     card: 'summary_large_image',
-    title: 'Memorial Service | Fríkirkjan í Hafnarfirði',
-    description: 'Join us for a memorial service on June 16th, 2025 at 1:00 PM.',
+    title: 'Funeral | Fríkirkjan í Hafnarfirði',
+    description: 'Join us for a funeral service on June 16th, 2025 at 1:00 PM.',
     images: ['/og-image.jpg'],
   },
   
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   // Additional meta
   manifest: '/site.webmanifest',
   robots: 'index, follow',
-  category: 'memorial service',
+  category: 'funeral service',
 }
 
 export default function RootLayout({

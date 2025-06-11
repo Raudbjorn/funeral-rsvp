@@ -6,8 +6,8 @@ export default function SocialShare() {
   const [showDropdown, setShowDropdown] = useState(false)
 
   const shareData = {
-    title: 'Memorial Service - Fríkirkjan í Hafnarfirði',
-    text: 'Join us for a memorial service on June 16, 2025 at 1:00 PM at Fríkirkjan í Hafnarfirði.',
+    title: 'Funeral - Fríkirkjan í Hafnarfirði',
+    text: 'Join us for a funeral service on June 16, 2025 at 1:00 PM at Fríkirkjan í Hafnarfirði.',
     url: typeof window !== 'undefined' ? window.location.href : ''
   }
 

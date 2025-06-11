@@ -1,6 +1,6 @@
-# Memorial Service RSVP & Carpool App
+# Funeral Service RSVP & Carpool App
 
-A simple, secure web application for organizing RSVPs, carpool coordination, and photo sharing for a memorial service.
+A simple, secure web application for organizing RSVPs, carpool coordination, and photo sharing for a funeral service.
 
 ## Features
 
