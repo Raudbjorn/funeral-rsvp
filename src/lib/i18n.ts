@@ -5,6 +5,8 @@ export type Language = 'is' | 'en'
 export interface Translations {
   // Header
   memorialService: string
+  venue: string
+  venueWebsite: string
   addToCalendar: string
   
   // Navigation
@@ -83,6 +85,8 @@ export const translations: Record<Language, Translations> = {
   en: {
     // Header
     memorialService: 'Memorial Service',
+    venue: 'Fríkirkjan í Hafnarfirði',
+    venueWebsite: 'Visit Church Website',
     addToCalendar: 'Add to Calendar',
     
     // Navigation
@@ -160,6 +164,8 @@ export const translations: Record<Language, Translations> = {
   is: {
     // Header
     memorialService: 'Minningarathöfn',
+    venue: 'Fríkirkjan í Hafnarfirði',
+    venueWebsite: 'Fara á vefsíðu kirkjunnar',
     addToCalendar: 'Bæta í dagatal',
     
     // Navigation

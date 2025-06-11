@@ -7,6 +7,8 @@ import PhotoAlbum from '@/components/PhotoAlbum'
 import CalendarButton from '@/components/CalendarButton'
 import LanguageToggle from '@/components/LanguageToggle'
 import ThemeToggle from '@/components/ThemeToggle'
+import SocialShare from '@/components/SocialShare'
+import WeatherWidget from '@/components/WeatherWidget'
 import { Language, useTranslation } from '@/lib/i18n'
 
 export default function Home() {
@@ -32,13 +34,39 @@ export default function Home() {
               {t.memorialService}
             </h1>
             <div className="text-lg text-gray-600 dark:text-gray-300 mb-4">
-              <p>Linnetsstígur 6, 220 Hafnarfjörður</p>
-              <p className="text-xl font-semibold text-gray-800 dark:text-gray-200 mt-2">
-                📅 13:00 / 1:00 PM
+              <div className="mb-2">
+                <a 
+                  href="https://www.frikirkja.is/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold underline decoration-2 underline-offset-2"
+                >
+                  {t.venue}
+                </a>
+                <p className="text-sm mt-1">Linnetsstígur 6, 220 Hafnarfjörður</p>
+              </div>
+              <p className="text-xl font-semibold text-gray-800 dark:text-gray-200 mt-3">
+                📅 June 16, 2025 • 13:00 / 1:00 PM
               </p>
             </div>
-            <CalendarButton />
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <CalendarButton />
+              <SocialShare />
+              <a
+                href="https://www.frikirkja.is/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-4 py-2 bg-gray-600 dark:bg-gray-500 text-white rounded-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
+              >
+                🏛️ {t.venueWebsite}
+              </a>
+            </div>
           </header>
+
+          {/* Weather Widget */}
+          <div className="mb-8 max-w-md mx-auto">
+            <WeatherWidget />
+          </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
             <div className="border-b border-gray-200 dark:border-gray-700">

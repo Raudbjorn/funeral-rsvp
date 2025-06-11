@@ -82,9 +82,9 @@ export function downloadICSFile(event: CalendarEvent): void {
 
 // Default event details for the memorial service
 export const MEMORIAL_EVENT: CalendarEvent = {
-  title: 'Memorial Service',
-  description: 'Memorial service for our dear friend. Please join us to remember and celebrate their life.',
-  location: 'Linnetsstígur 6, 220 Hafnarfjörður, Iceland',
-  startDate: new Date('2024-01-01T13:00:00'), // You'll need to set the actual date
-  endDate: new Date('2024-01-01T15:00:00')    // Assuming 2-hour service
+  title: 'Memorial Service - Fríkirkjan í Hafnarfirði',
+  description: 'Memorial service at Fríkirkjan í Hafnarfirði. Please join us to remember and celebrate their life. Church website: https://www.frikirkja.is/',
+  location: 'Fríkirkjan í Hafnarfirði, Linnetsstígur 6, 220 Hafnarfjörður, Iceland',
+  startDate: new Date('2025-06-16T13:00:00'), // June 16, 2025 at 1:00 PM
+  endDate: new Date('2025-06-16T15:00:00')    // Assuming 2-hour service
 }
