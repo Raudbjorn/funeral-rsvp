@@ -40,14 +40,20 @@ services:
       timeout: 10s
       retries: 3
 
-  # Nginx Reverse Proxy
+  # Nginx Reverse Proxy (now with integrated CrowdSec Bouncer)
   nginx:
-    image: nginx:alpine
+    # Use the OpenResty image which includes the Lua bouncer
+    image: crowdsecurity/openresty
     container_name: memorial-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "80:8080"
+      - "443:8443"
+    environment:
+      # Key for the bouncer to communicate with the CrowdSec agent
+      - CROWDSEC_BOUNCER_API_KEY=${CROWDSEC_BOUNCER_API_KEY}
+      # Address of your CrowdSec agent
+      - CROWDSEC_AGENT_HOST=crowdsec:8080
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/sites:/etc/nginx/sites-available:ro
@@ -60,31 +66,34 @@ services:
       - crowdsec-network
     depends_on:
       - app
+      - crowdsec # Nginx must depend on crowdsec now
     healthcheck:
       test: ["CMD", "nginx", "-t"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  # Certbot for SSL certificates
   certbot:
-    image: certbot/dns-porkbun
+    # Corrected Docker image
+    image: infinityofspace/certbot_dns_porkbun
     container_name: memorial-certbot
     restart: "no"
     volumes:
       - certbot-certs:/etc/letsencrypt
       - certbot-web:/var/www/certbot
-      - ./certbot:/etc/certbot:ro
+      # Make sure this path points to your porkbun.ini file
+      - ./certbot/porkbun.ini:/etc/certbot/porkbun.ini:ro
     environment:
+      # Environment variables are often not needed when using the credentials file
       - PORKBUN_API_KEY=${PORKBUN_API_KEY}
       - PORKBUN_SECRET_KEY=${PORKBUN_SECRET_KEY}
     command: >
       sh -c "
-        trap exit TERM;
-        while :; do
-          certbot renew --quiet --dns-porkbun --dns-porkbun-credentials /etc/certbot/porkbun.ini;
-          sleep 12h & wait $${!};
-        done
+      trap exit TERM;
+      while :; do
+        certbot renew --quiet --dns-porkbun --dns-porkbun-credentials /etc/certbot/porkbun.ini;
+        sleep 12h & wait $$!;
+      done
       "
 
   # CrowdSec Security Engine
@@ -112,32 +121,20 @@ services:
       timeout: 10s
       retries: 3
 
-  # CrowdSec Bouncer for Nginx
-  crowdsec-nginx-bouncer:
-    image: crowdsecurity/nginx-crowdsec-bouncer
-    container_name: memorial-bouncer
-    restart: unless-stopped
-    environment:
-      - CROWDSEC_BOUNCER_API_KEY=${CROWDSEC_BOUNCER_API_KEY}
-      - CROWDSEC_AGENT_HOST=crowdsec:8080
-    volumes:
-      - ./nginx/bouncer.conf:/etc/nginx/conf.d/crowdsec.conf:ro
-    networks:
-      - crowdsec-network
-    depends_on:
-      - crowdsec
-
   # CrowdSec Dashboard (Web UI)
-  crowdsec-dashboard:
-    image: crowdsecurity/dashboard
+  dashboard:
+    image: metabase/metabase
     container_name: memorial-crowdsec-dashboard
     restart: unless-stopped
+    ports:
+      - "3000:3000"
     environment:
-      - CROWDSEC_API_URL=http://crowdsec:8080
-      - CROWDSEC_API_KEY=${CROWDSEC_DASHBOARD_API_KEY}
+      - MB_DB_FILE=/metabase-data/metabase.db
+    volumes:
+      - crowdsec-db:/metabase-data/
     networks:
-      - crowdsec-network
       - app-network
+      - crowdsec-network
     depends_on:
       - crowdsec
 
