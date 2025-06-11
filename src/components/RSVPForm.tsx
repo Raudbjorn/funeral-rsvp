@@ -71,11 +71,11 @@ export default function RSVPForm({ language }: RSVPFormProps) {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-6">{t.rsvpTitle}</h2>
+      <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">{t.rsvpTitle}</h2>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {t.name} {t.required}
           </label>
           <input
@@ -84,12 +84,12 @@ export default function RSVPForm({ language }: RSVPFormProps) {
             required
             value={formData.name}
             onChange={(e) => setFormData({...formData, name: e.target.value})}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {t.emailOptional}
           </label>
           <input
@@ -97,7 +97,7 @@ export default function RSVPForm({ language }: RSVPFormProps) {
             id="email"
             value={formData.email}
             onChange={(e) => setFormData({...formData, email: e.target.value})}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 

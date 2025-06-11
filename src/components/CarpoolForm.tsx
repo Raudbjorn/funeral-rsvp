@@ -2,9 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { CarpoolDriver, CarpoolPassenger } from '@/types'
+import { Language, useTranslation } from '@/lib/i18n'
 import RouteMap from './RouteMap'
 
-export default function CarpoolForm() {
+interface CarpoolFormProps {
+  language: Language
+}
+
+export default function CarpoolForm({ language }: CarpoolFormProps) {
+  const t = useTranslation(language)
   const [mode, setMode] = useState<'driver' | 'passenger'>('driver')
   const [drivers, setDrivers] = useState<CarpoolDriver[]>([])
   const [passengers, setPassengers] = useState<CarpoolPassenger[]>([])

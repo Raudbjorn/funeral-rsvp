@@ -82,11 +82,11 @@ export default function AdminPage() {
   const totalGuests = attendingRsvps.reduce((sum, r) => sum + (r.guestCount || 1), 0)
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <header className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Panel</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Admin Panel</h1>
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               🔒 This admin panel is only accessible via Tailscale
             </div>

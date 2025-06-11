@@ -2,8 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { Photo } from '@/types'
+import { Language, useTranslation } from '@/lib/i18n'
 
-export default function PhotoAlbum() {
+interface PhotoAlbumProps {
+  language: Language
+}
+
+export default function PhotoAlbum({ language }: PhotoAlbumProps) {
+  const t = useTranslation(language)
   const [photos, setPhotos] = useState<Photo[]>([])
   const [uploading, setUploading] = useState(false)
   const [uploadForm, setUploadForm] = useState({

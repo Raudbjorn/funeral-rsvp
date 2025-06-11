@@ -6,6 +6,7 @@ import CarpoolForm from '@/components/CarpoolForm'
 import PhotoAlbum from '@/components/PhotoAlbum'
 import CalendarButton from '@/components/CalendarButton'
 import LanguageToggle from '@/components/LanguageToggle'
+import ThemeToggle from '@/components/ThemeToggle'
 import { Language, useTranslation } from '@/lib/i18n'
 
 export default function Home() {
@@ -14,11 +15,12 @@ export default function Home() {
   const t = useTranslation(language)
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          {/* Language toggle in top right */}
-          <div className="flex justify-end mb-6">
+          {/* Controls in top right */}
+          <div className="flex justify-end items-center space-x-4 mb-6">
+            <ThemeToggle />
             <LanguageToggle 
               currentLanguage={language}
               onLanguageChange={setLanguage}
@@ -26,27 +28,27 @@ export default function Home() {
           </div>
           
           <header className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               {t.memorialService}
             </h1>
-            <div className="text-lg text-gray-600 mb-4">
+            <div className="text-lg text-gray-600 dark:text-gray-300 mb-4">
               <p>Linnetsstígur 6, 220 Hafnarfjörður</p>
-              <p className="text-xl font-semibold text-gray-800 mt-2">
+              <p className="text-xl font-semibold text-gray-800 dark:text-gray-200 mt-2">
                 📅 13:00 / 1:00 PM
               </p>
             </div>
             <CalendarButton />
           </header>
 
-          <div className="bg-white rounded-lg shadow-lg">
-            <div className="border-b border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+            <div className="border-b border-gray-200 dark:border-gray-700">
               <nav className="flex space-x-8 px-6">
                 <button
                   onClick={() => setActiveTab('rsvp')}
                   className={`py-4 text-sm font-medium border-b-2 ${
                     activeTab === 'rsvp'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                   }`}
                 >
                   {t.rsvp}
@@ -55,8 +57,8 @@ export default function Home() {
                   onClick={() => setActiveTab('carpool')}
                   className={`py-4 text-sm font-medium border-b-2 ${
                     activeTab === 'carpool'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                   }`}
                 >
                   {t.carpool}
@@ -65,8 +67,8 @@ export default function Home() {
                   onClick={() => setActiveTab('photos')}
                   className={`py-4 text-sm font-medium border-b-2 ${
                     activeTab === 'photos'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                   }`}
                 >
                   {t.photos}
