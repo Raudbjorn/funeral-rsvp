@@ -5,16 +5,15 @@ import Redis from 'ioredis'
 let redis: Redis | null = null
 try {
   if (process.env.REDIS_URL) {
-    redis = new Redis(process.env.REDIS_URL, {
-      retryDelayOnFailover: 100,
-      enableReadyCheck: false,
-      maxRetriesPerRequest: 3,
-      lazyConnect: true
-    })
+    redis = new Redis(process.env.REDIS_URL)
     
     redis.on('error', (err) => {
       console.warn('Redis connection error, falling back to memory:', err.message)
       redis = null
+    })
+    
+    redis.on('connect', () => {
+      console.log('Redis connected successfully')
     })
   }
 } catch (error) {
