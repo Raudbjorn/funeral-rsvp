@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { RSVP, CarpoolDriver, CarpoolPassenger, Photo } from '@/types'
 import { calculateCarpoolMatches, DistanceInfo } from '@/lib/mapsUtils'
 
@@ -48,8 +48,16 @@ export default function AdminPage() {
     }
   }
 
-  const calculateMatches = async () => {
+  const calculateMatches = useCallback(async () => {
     if (passengers.length === 0 || drivers.length === 0) return
+    
+    // Check if Google Maps API is available
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    if (!apiKey || apiKey === 'your-google-maps-api-key') {
+      console.warn('Google Maps API key not configured, skipping carpool matching')
+      setCarpoolMatches([])
+      return
+    }
     
     setLoadingMatches(true)
     try {
@@ -70,10 +78,12 @@ export default function AdminPage() {
       setCarpoolMatches(matches)
     } catch (error) {
       console.error('Error calculating matches:', error)
+      // Set empty matches on error to prevent infinite loop
+      setCarpoolMatches([])
     } finally {
       setLoadingMatches(false)
     }
-  }
+  }, [passengers, drivers])
 
   // Calculate matches when carpool data is loaded
   useEffect(() => {
