@@ -32,19 +32,30 @@ async function writeRSVPs(rsvps: RSVP[]) {
 export async function POST(request: NextRequest) {
   try {
     const clientIP = getClientIP(request)
+    console.log('RSVP submission from IP:', clientIP)
     
-    // Rate limiting
-    const rateLimitPassed = await rateLimitCheck(rsvpLimiter, clientIP)
-    if (!rateLimitPassed) {
-      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+    // Rate limiting with error handling
+    try {
+      const rateLimitPassed = await rateLimitCheck(rsvpLimiter, clientIP)
+      if (!rateLimitPassed) {
+        console.log('Rate limit exceeded for IP:', clientIP)
+        return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+      }
+    } catch (rateLimitError) {
+      console.warn('Rate limit check failed, allowing request:', rateLimitError)
     }
     
     // Geographic restrictions (stricter for non-Iceland IPs)
-    if (!isIcelandicIP(clientIP)) {
-      const geoRateLimitPassed = await rateLimitCheck(geographicLimiter, clientIP)
-      if (!geoRateLimitPassed) {
-        return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+    try {
+      if (!isIcelandicIP(clientIP)) {
+        const geoRateLimitPassed = await rateLimitCheck(geographicLimiter, clientIP)
+        if (!geoRateLimitPassed) {
+          console.log('Geographic rate limit exceeded for IP:', clientIP)
+          return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+        }
       }
+    } catch (geoRateLimitError) {
+      console.warn('Geographic rate limit check failed, allowing request:', geoRateLimitError)
     }
     
     const rsvp: RSVP = await request.json()

@@ -1,18 +1,38 @@
 import { RateLimiterMemory, RateLimiterRedis } from 'rate-limiter-flexible'
 import Redis from 'ioredis'
 
-// Redis client setup
-const redis = process.env.REDIS_URL 
-  ? new Redis(process.env.REDIS_URL)
-  : null
+// Redis client setup with better error handling
+let redis: Redis | null = null
+try {
+  if (process.env.REDIS_URL) {
+    redis = new Redis(process.env.REDIS_URL, {
+      retryDelayOnFailover: 100,
+      enableReadyCheck: false,
+      maxRetriesPerRequest: 3,
+      lazyConnect: true
+    })
+    
+    redis.on('error', (err) => {
+      console.warn('Redis connection error, falling back to memory:', err.message)
+      redis = null
+    })
+  }
+} catch (error) {
+  console.warn('Failed to initialize Redis, using memory rate limiter:', error)
+  redis = null
+}
 
 // Use Redis if available, otherwise fallback to memory
 const createLimiter = (options: any) => {
   if (redis) {
-    return new RateLimiterRedis({
-      storeClient: redis,
-      ...options
-    })
+    try {
+      return new RateLimiterRedis({
+        storeClient: redis,
+        ...options
+      })
+    } catch (error) {
+      console.warn('Failed to create Redis rate limiter, falling back to memory:', error)
+    }
   }
   return new RateLimiterMemory(options)
 }
@@ -50,13 +70,15 @@ export const geographicLimiter = createLimiter({
 })
 
 export async function rateLimitCheck(
-  limiter: RateLimiterMemory,
+  limiter: RateLimiterMemory | RateLimiterRedis,
   key: string
 ): Promise<boolean> {
   try {
     await limiter.consume(key)
     return true
-  } catch {
+  } catch (error) {
+    // Log rate limit hits for debugging
+    console.log(`Rate limit hit for key: ${key}`)
     return false
   }
 }
