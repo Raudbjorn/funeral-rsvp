@@ -80,7 +80,7 @@ export default function AdminPage() {
     if (drivers.length > 0 && passengers.length > 0) {
       calculateMatches()
     }
-  }, [drivers, passengers])
+  }, [drivers, passengers, calculateMatches])
 
   const deleteItem = async (type: string, id: string) => {
     if (!confirm('Are you sure you want to delete this item?')) return

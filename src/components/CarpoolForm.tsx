@@ -58,7 +58,7 @@ export default function CarpoolForm({ language }: CarpoolFormProps) {
         }
       })
     }
-  }, [drivers, GOOGLE_MAPS_API_KEY])
+  }, [drivers, GOOGLE_MAPS_API_KEY, driverDistances])
 
   // Calculate distances for passengers when they're loaded
   useEffect(() => {
@@ -69,7 +69,7 @@ export default function CarpoolForm({ language }: CarpoolFormProps) {
         }
       })
     }
-  }, [passengers, GOOGLE_MAPS_API_KEY])
+  }, [passengers, GOOGLE_MAPS_API_KEY, passengerDistances])
 
   const calculateDriverDistance = async (driverId: string, origin: string) => {
     setLoadingDistances(prev => ({ ...prev, [`driver-${driverId}`]: true }))

@@ -17,22 +17,60 @@ if ! command -v docker-compose &> /dev/null; then
     exit 1
 fi
 
+# Generate secure Redis password if not set
+if [ -z "${REDIS_PASSWORD}" ]; then
+    echo "🔐 Generating secure Redis password..."
+    GENERATED_REDIS_PASSWORD=$(openssl rand -hex 32)
+else
+    GENERATED_REDIS_PASSWORD="${REDIS_PASSWORD}"
+fi
+
+# Set site URL if not provided
+if [ -z "${NEXT_PUBLIC_SITE_URL}" ]; then
+    HOSTNAME_VALUE=$(hostname 2>/dev/null || echo "localhost")
+    GENERATED_SITE_URL="http://${HOSTNAME_VALUE}:3000"
+else
+    GENERATED_SITE_URL="${NEXT_PUBLIC_SITE_URL}"
+fi
+
 # Create .env file from template if it doesn't exist
 if [ ! -f .env ]; then
-    echo "📝 Creating .env file..."
-    cat > .env << 'EOF'
-# Redis Configuration
-REDIS_PASSWORD=your-secure-redis-password
+    echo "📝 Creating .env file with auto-generated values..."
+    cat > .env << EOF
+# Redis Configuration (auto-generated)
+REDIS_PASSWORD=${GENERATED_REDIS_PASSWORD}
 
-# Application Configuration
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+# Application Configuration (auto-detected)
+NEXT_PUBLIC_SITE_URL=${GENERATED_SITE_URL}
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-google-maps-api-key
 NEXT_PUBLIC_OPENWEATHER_API_KEY=your-openweather-api-key
 EOF
-    echo "⚠️  Please edit .env file with your actual configuration before proceeding!"
-    echo "   - Set secure Redis password"
-    echo "   - Add your API keys"
-    read -p "Press Enter when you've configured .env file..."
+    echo "✅ Generated .env file with:"
+    echo "   - Secure Redis password (32-byte hex)"
+    echo "   - Site URL: ${GENERATED_SITE_URL}"
+    echo "⚠️  Please add your API keys to .env file before proceeding!"
+    read -p "Press Enter when you've added your API keys..."
+else
+    echo "📝 .env file already exists, checking for missing values..."
+    
+    # Update existing .env file with generated values if they're missing
+    if ! grep -q "^REDIS_PASSWORD=" .env || grep -q "^REDIS_PASSWORD=your-secure-redis-password" .env; then
+        echo "🔐 Updating Redis password in existing .env..."
+        if grep -q "^REDIS_PASSWORD=" .env; then
+            sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=${GENERATED_REDIS_PASSWORD}/" .env
+        else
+            echo "REDIS_PASSWORD=${GENERATED_REDIS_PASSWORD}" >> .env
+        fi
+    fi
+    
+    if ! grep -q "^NEXT_PUBLIC_SITE_URL=" .env || grep -q "^NEXT_PUBLIC_SITE_URL=http://localhost:3000" .env; then
+        echo "🌐 Updating site URL in existing .env..."
+        if grep -q "^NEXT_PUBLIC_SITE_URL=" .env; then
+            sed -i "s|^NEXT_PUBLIC_SITE_URL=.*|NEXT_PUBLIC_SITE_URL=${GENERATED_SITE_URL}|" .env
+        else
+            echo "NEXT_PUBLIC_SITE_URL=${GENERATED_SITE_URL}" >> .env
+        fi
+    fi
 fi
 
 # Create necessary directories

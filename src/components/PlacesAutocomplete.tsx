@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 
 interface PlacesAutocompleteProps {
   value: string
-  onChange: (value: string, placeDetails?: google.maps.places.PlaceResult) => void
+  onChange: (value: string, placeDetails?: any) => void
   placeholder?: string
   className?: string
   required?: boolean
@@ -26,7 +26,7 @@ export default function PlacesAutocomplete({
   apiKey
 }: PlacesAutocompleteProps) {
   const inputRef = useRef<HTMLInputElement>(null)
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
+  const autocompleteRef = useRef<any>(null)
   const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
