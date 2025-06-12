@@ -65,8 +65,7 @@ jobs:
         ENABLE_SPLIT_DNS=true
         ADMIN_SUBDOMAINS=admin,files,logs,redis,crowdsec,containers,monitoring
 
-        # Tailscale IP (auto-detected during deployment)
-        TAILSCALE_IP=
+        # Tailscale removed for simplified deployment
         ENV_EOF
         
         # Secure the environment file
@@ -100,7 +99,7 @@ jobs:
         export $(cat .env.production | xargs)
         
         # Create required directories
-        mkdir -p data nginx/sites nginx/ssl certbot crowdsec promtail tailscale public/uploads backups
+        mkdir -p data nginx/sites nginx/ssl public/uploads
         
         # Set proper permissions
         chown -R 1000:1000 data public/uploads
@@ -129,13 +128,7 @@ jobs:
           docker-compose restart crowdsec-nginx-bouncer crowdsec-dashboard
         fi
         
-        # Detect and configure Tailscale IP
-        sleep 10
-        TAILSCALE_IP=$(docker-compose exec -T tailscale tailscale ip -4 | head -1 | tr -d '\r\n')
-        if [[ -n "$TAILSCALE_IP" && "$TAILSCALE_IP" =~ ^100\.64\. ]]; then
-          echo "Detected Tailscale IP: $TAILSCALE_IP"
-          sed -i "s/TAILSCALE_IP=/TAILSCALE_IP=${TAILSCALE_IP}/" .env.production
-        fi
+        # Tailscale IP detection removed for simplified deployment
         
         # Health check
         echo "Performing health check..."

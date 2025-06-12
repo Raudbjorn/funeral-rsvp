@@ -71,7 +71,7 @@ echo "🛠️ Post-Deployment Setup:"
 echo ""
 echo "After first successful deployment:"
 echo "1. Set up DNS: Add A records pointing joi.taxi to 104.152.211.26"
-echo "2. Set up Tailscale DNS: Run ./scripts/setup-split-dns.sh locally"
+echo "2. Configure your domain's DNS to point to your server"
 echo "3. Create basic auth credentials for admin access"
 echo ""
 
