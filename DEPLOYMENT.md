@@ -40,14 +40,8 @@ To deploy the funeral service application to your VPS, run:
 
 - **Public Site**: https://joi.taxi
 
-### 🔒 Admin Interfaces (Tailscale Only)
-- **App Admin**: https://memorial-admin.cougar-cloud.ts.net/admin
-- **CrowdSec Security**: https://memorial-admin.cougar-cloud.ts.net/crowdsec
-- **Redis Database**: https://memorial-admin.cougar-cloud.ts.net/redis  
-- **System Monitoring**: https://memorial-admin.cougar-cloud.ts.net/monitoring
-- **Container Management**: https://memorial-admin.cougar-cloud.ts.net/containers
-- **Live Logs**: https://memorial-admin.cougar-cloud.ts.net/logs
-- **File Manager**: https://memorial-admin.cougar-cloud.ts.net/files
+### 🔒 Admin Interface
+- **App Admin**: https://your-domain.com/admin (protected by basic auth)
 
 ## DNS Configuration
 
@@ -60,46 +54,93 @@ A    www.your-domain.com   YOUR_SERVER_IP
 ## 🔐 Security Features
 
 ### Admin Access Protection
-- All admin interfaces are **only accessible via Tailscale**
-- Public access to `/admin` paths is **automatically blocked** by nginx
-- Requires joining your Tailscale network to access any admin features
+- Admin interface at `/admin` is **protected by HTTP basic authentication**
+- Nginx handles authentication using `.htpasswd` file
+- Requires valid username/password to access admin features
 
-### What Each Admin Interface Provides
+### Admin Interface Features
 - **App Admin**: RSVP management, content moderation
-- **CrowdSec Security**: Real-time threat monitoring, IP bans, attack statistics
-- **Redis Database**: View cache, rate limiting data, session management
-- **System Monitoring**: CPU, memory, disk, network usage with real-time graphs
-- **Container Management**: Start/stop/restart containers, view container stats
-- **Live Logs**: Real-time streaming logs from all services
-- **File Manager**: Browse uploaded photos, data files, backups with web interface
+- **Photo Management**: View and delete uploaded photos
+- **Carpool Management**: View driver and passenger information
 
-## 🌐 Split DNS Option (Alternative Admin Access)
+## ⚙️ Environment Configuration
 
-For cleaner domain names, you can optionally use split DNS:
+Before deployment, you need to set up your environment variables:
 
-### Setup Split DNS
 ```bash
-./scripts/setup-split-dns.sh
+# Create .env file with required variables
+cat > .env << 'EOF'
+REDIS_PASSWORD=your-secure-redis-password-here
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-google-maps-api-key
+NEXT_PUBLIC_OPENWEATHER_API_KEY=your-openweather-api-key
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+EOF
+
+# Generate a secure Redis password
+openssl rand -hex 32
 ```
 
-This provides alternative admin URLs:
-- **admin.your-domain.com** → App Admin Panel
-- **files.your-domain.com** → File Manager  
-- **logs.your-domain.com** → Live Logs
-- **redis.your-domain.com** → Redis Database
-- **crowdsec.your-domain.com** → Security Dashboard
-- **containers.your-domain.com** → Container Management
-- **monitoring.your-domain.com** → System Monitoring
+**Important Notes**: 
+- The `REDIS_PASSWORD` is required for the app to connect to Redis. Use a strong, randomly generated password.
+- The `NEXT_PUBLIC_*` variables are embedded into the app at build time and **will be visible to users in the browser**.
 
-### How Split DNS Works
-1. **Tailscale IP auto-detected** during deployment (e.g., 100.64.x.x)
-2. **SSL certificates generated** for all admin subdomains
-3. **Nginx configured** to route subdomains to services
-4. **DNS records added** to Tailscale (manual step)
-5. **Access restricted** to Tailscale IP ranges only
+**Security for API Keys**:
+- **Google Maps API Key**: Secure it in Google Cloud Console with HTTP referrer restrictions (e.g., `https://your-domain.com/*`)
+- **OpenWeather API Key**: Currently not used (weather widget shows mock data), can be omitted
+- **Site URL**: Safe to expose, used for social media previews
 
-### Security Benefits
-- **Zero public DNS pollution** - domains don't exist publicly
-- **Tailscale-only resolution** - complete network isolation
-- **Automatic SSL certificates** via Let's Encrypt
-- **IP range validation** at nginx level
+## 🔧 Setting Up Basic Authentication
+
+To secure the admin interface, create a basic auth file:
+
+```bash
+# Install htpasswd utility (if not already installed)
+sudo apt-get install apache2-utils
+
+# Create .htpasswd file with admin user
+htpasswd -c .htpasswd admin
+
+# Uncomment the basic auth volume mount in docker-compose.yml:
+# - ./.htpasswd:/etc/nginx/.htpasswd:ro
+```
+
+## 🔐 Setting Up SSL/TLS Certificates
+
+To enable HTTPS, you'll need to mount your SSL certificates:
+
+### Option 1: Using Let's Encrypt (recommended)
+```bash
+# Install certbot
+sudo apt-get install certbot
+
+# Obtain certificates (replace your-domain.com)
+sudo certbot certonly --standalone -d your-domain.com
+
+# Copy certificates to your project
+sudo cp /etc/letsencrypt/live/your-domain.com/fullchain.pem ./ssl/
+sudo cp /etc/letsencrypt/live/your-domain.com/privkey.pem ./ssl/
+sudo chown $USER:$USER ./ssl/*
+```
+
+### Option 2: Using your own certificates
+```bash
+# Create ssl directory
+mkdir -p ssl
+
+# Copy your certificate files
+cp your-fullchain.pem ./ssl/fullchain.pem
+cp your-private-key.pem ./ssl/privkey.pem
+```
+
+### Enable SSL in docker-compose.yml
+Uncomment these lines in docker-compose.yml:
+```yaml
+volumes:
+  - ./ssl:/etc/nginx/ssl:ro
+  - ./.htpasswd:/etc/nginx/.htpasswd:ro
+```
+
+### Update nginx configuration
+In `nginx/sites/memorial.conf`, uncomment the HTTPS server block and update the `server_name` to your domain.
+
+The nginx configuration includes both HTTP and HTTPS server blocks with proper SSL configuration and security headers.

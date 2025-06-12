@@ -6,14 +6,10 @@ import { RSVP } from '@/types'
 const DATA_DIR = path.join(process.cwd(), 'data')
 const RSVP_FILE = path.join(DATA_DIR, 'rsvps.json')
 
-function isTailscaleRequest(request: NextRequest): boolean {
-  const host = request.headers.get('host') || ''
-  const forwarded = request.headers.get('x-forwarded-host') || ''
-  
-  return host.includes('-admin') || 
-         host.includes('.ts.net') || 
-         forwarded.includes('-admin') ||
-         forwarded.includes('.ts.net')
+function isAuthorized(request: NextRequest): boolean {
+  // If nginx basic auth passes, the request is authorized
+  // We trust nginx to handle authentication
+  return true
 }
 
 async function readRSVPs(): Promise<RSVP[]> {
@@ -34,7 +30,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!isTailscaleRequest(request)) {
+  if (!isAuthorized(request)) {
     return NextResponse.json({ error: 'Access denied' }, { status: 403 })
   }
 

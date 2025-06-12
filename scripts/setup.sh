@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Memorial Service App Setup Script
+# Memorial Service App Simple Setup Script
 
 set -e
 
@@ -19,12 +19,19 @@ fi
 
 # Create .env file from template if it doesn't exist
 if [ ! -f .env ]; then
-    echo "📝 Creating .env file from template..."
-    cp .env.docker .env
+    echo "📝 Creating .env file..."
+    cat > .env << 'EOF'
+# Redis Configuration
+REDIS_PASSWORD=your-secure-redis-password
+
+# Application Configuration
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-google-maps-api-key
+NEXT_PUBLIC_OPENWEATHER_API_KEY=your-openweather-api-key
+EOF
     echo "⚠️  Please edit .env file with your actual configuration before proceeding!"
-    echo "   - Set your domain name"
-    echo "   - Add Porkbun API credentials"
-    echo "   - Set secure passwords"
+    echo "   - Set secure Redis password"
+    echo "   - Add your API keys"
     read -p "Press Enter when you've configured .env file..."
 fi
 
@@ -32,11 +39,9 @@ fi
 echo "📁 Creating necessary directories..."
 mkdir -p data
 mkdir -p public/uploads
-mkdir -p nginx/ssl
 
 # Set proper permissions
 echo "🔒 Setting permissions..."
-chmod 700 certbot/porkbun.ini
 chmod -R 755 data
 chmod -R 755 public/uploads
 
@@ -50,52 +55,27 @@ sleep 30
 
 # Check if app is healthy
 echo "🏥 Checking application health..."
-if curl -f http://localhost/api/health &> /dev/null; then
+if curl -f http://localhost:3000/api/health &> /dev/null; then
     echo "✅ Application is healthy!"
 else
     echo "❌ Application health check failed. Check logs:"
     echo "   docker-compose logs app"
 fi
 
-# Initial SSL certificate setup
-echo "🔐 Setting up SSL certificates..."
-read -p "Do you want to obtain SSL certificates now? (y/N): " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    source .env
-    docker-compose run --rm certbot certbot certonly \
-        --dns-porkbun \
-        --dns-porkbun-credentials /etc/certbot/porkbun.ini \
-        -d $DOMAIN_NAME \
-        --agree-tos \
-        --email admin@$DOMAIN_NAME
-    
-    # Reload nginx to pick up certificates
-    docker-compose restart nginx
-fi
-
-# Setup CrowdSec bouncer
-echo "🛡️  Setting up CrowdSec bouncer..."
-echo "Getting bouncer API key..."
-BOUNCER_KEY=$(docker-compose exec crowdsec cscli bouncers add nginx-bouncer --output raw 2>/dev/null || echo "")
-if [ ! -z "$BOUNCER_KEY" ]; then
-    echo "CrowdSec bouncer key: $BOUNCER_KEY"
-    echo "Add this to your .env file as CROWDSEC_BOUNCER_API_KEY"
-else
-    echo "⚠️  Could not generate bouncer key automatically. Please run:"
-    echo "   docker-compose exec crowdsec cscli bouncers add nginx-bouncer"
-fi
-
 echo ""
 echo "🎉 Setup complete!"
 echo ""
 echo "Your memorial service app should now be running at:"
-echo "   HTTP:  http://localhost"
-echo "   HTTPS: https://$DOMAIN_NAME (after SSL setup)"
+echo "   Local:  http://localhost:3000"
+echo "   Admin:  http://localhost:3000/admin (requires basic auth setup)"
+echo ""
+echo "To set up admin access:"
+echo "   1. Install apache2-utils: sudo apt-get install apache2-utils"
+echo "   2. Create password file: htpasswd -c .htpasswd admin"
+echo "   3. Update docker-compose.yml to mount .htpasswd in nginx"
 echo ""
 echo "Useful commands:"
 echo "   View logs:           docker-compose logs -f"
 echo "   Stop services:       docker-compose down"
 echo "   Update containers:   docker-compose pull && docker-compose up -d"
-echo "   CrowdSec status:     docker-compose exec crowdsec cscli metrics"
 echo ""

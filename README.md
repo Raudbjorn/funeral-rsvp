@@ -24,24 +24,14 @@ git push origin main
 - **Carpool Coordination**: Driver registration and passenger matching  
 - **Photo Album**: Share memories with upload functionality
 - **Security**: Rate limiting, spam detection, geographic restrictions
-- **Admin Dashboard**: Complete management interface via Tailscale
+- **Admin Dashboard**: Complete management interface with basic auth
 - **Internationalization**: English/Icelandic support
 - **Mobile Optimized**: Touch-friendly responsive design
 
 ## 🛡️ Security & Admin Features
 
-### Admin Interfaces (Tailscale-only access)
-- **App Admin**: RSVP & content management
-- **CrowdSec Dashboard**: Real-time security monitoring
-- **Redis Commander**: Database management
-- **System Monitoring**: Performance metrics (Netdata)
-- **Container Management**: Docker administration (Portainer)
-- **Live Logs**: Real-time log streaming (Dozzle)
-- **File Manager**: Upload/backup management
-
-### Access Methods
-1. **Native Tailscale**: `memorial-admin.cougar-cloud.ts.net/*`
-2. **Split DNS**: `admin.joi.taxi`, `files.joi.taxi`, etc. (requires Tailscale DNS setup)
+### Admin Interface
+- **App Admin**: RSVP & content management (protected by basic auth at `/admin`)
 
 ## 🔧 Local Development
 
@@ -60,24 +50,19 @@ npm run dev
 
 - **Next.js 15**: React application framework
 - **Redis**: Rate limiting and session storage
-- **Nginx**: Reverse proxy with SSL
-- **CrowdSec**: Intrusion detection/prevention
-- **Tailscale**: Secure admin network access
+- **Basic Auth**: Secure admin access protection
 - **Docker Compose**: Container orchestration
-- **Certbot**: Automatic SSL certificates
-- **Monitoring**: Netdata, Portainer, Dozzle
 
 ## 🌐 Deployment Targets
 
 - **VPS**: Your server IP address
 - **Domain**: Your domain name
-- **Admin Access**: Tailscale network required
+- **Admin Access**: Basic authentication required
 
 ## 📚 Documentation
 
 - [Deployment Guide](DEPLOYMENT.md) - Complete setup instructions
 - [GitHub Actions Setup](scripts/setup-github-secrets.sh) - Automated deployment
-- [Split DNS Setup](scripts/setup-split-dns.sh) - Alternative admin access
 
 ## 🔍 Quick Commands
 

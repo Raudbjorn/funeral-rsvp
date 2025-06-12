@@ -44,9 +44,6 @@ When using GitHub Actions, configure these secrets in your repository:
 - `SERVER_IP` - Your server IP address
 - `DOMAIN_NAME` - Your domain name
 - `REDIS_PASSWORD` - Strong password for Redis
-- `TAILSCALE_AUTHKEY` - Your Tailscale auth key
-- `PORKBUN_API_KEY` - Porkbun API key (if using Porkbun for DNS)
-- `PORKBUN_SECRET_KEY` - Porkbun secret key
 - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` - Google Maps API key
 - `NEXT_PUBLIC_OPENWEATHER_API_KEY` - OpenWeather API key
 
@@ -59,20 +56,16 @@ A    your-domain.com       YOUR_SERVER_IP
 A    www.your-domain.com   YOUR_SERVER_IP
 ```
 
-### 6. Tailscale Setup
+### 6. Basic Auth Setup
 
-1. Create a Tailscale account
-2. Generate an auth key at https://login.tailscale.com/admin/settings/keys
-3. Use the auth key in your environment configuration
-
-### 7. Split DNS Setup (Optional)
-
-For cleaner admin URLs:
+Secure the admin interface:
 
 ```bash
-export SERVER_IP="1.2.3.4"
-export SSH_USER="root"
-./scripts/setup-split-dns.sh
+# Create basic auth credentials
+htpasswd -c .htpasswd admin
+
+# The password will be prompted
+# This file should be mounted in nginx container
 ```
 
 ## 📝 Environment Variable Reference
@@ -83,7 +76,6 @@ export SSH_USER="root"
 | `SSH_USER` | SSH username | `root` or `ubuntu` |
 | `DOMAIN_NAME` | Your domain name | `memorial.example.com` |
 | `REDIS_PASSWORD` | Strong Redis password | Generate with `openssl rand -hex 32` |
-| `TAILSCALE_AUTHKEY` | Tailscale auth key | `tskey-auth-...` |
 
 ## 🔧 Customization
 
@@ -108,7 +100,8 @@ The application will automatically use your `DOMAIN_NAME` environment variable. 
 - All sensitive data should be in environment variables or GitHub Secrets
 - Never commit API keys, passwords, or server details to version control
 - Use strong passwords for Redis and other services
-- Keep your Tailscale auth keys secure
+- Keep your basic auth credentials secure
+- Store .htpasswd file safely and mount it in nginx
 
 ## 📞 Support
 

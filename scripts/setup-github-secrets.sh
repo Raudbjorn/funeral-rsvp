@@ -28,16 +28,12 @@ SSH_PRIVATE_KEY         = [Your SSH private key content]
 SSH_USER               = [YOUR_SSH_USER]
 SERVER_IP              = [YOUR_SERVER_IP]
 
-# Domain and DNS
+# Domain
 DOMAIN_NAME            = [YOUR_DOMAIN]
-PORKBUN_API_KEY        = [YOUR_PORKBUN_API_KEY]
-PORKBUN_SECRET_KEY     = [YOUR_PORKBUN_SECRET_KEY]
 
 # Application Secrets
 REDIS_PASSWORD         = [YOUR_REDIS_PASSWORD]
 
-# Tailscale
-TAILSCALE_AUTHKEY      = [YOUR_TAILSCALE_AUTHKEY]
 
 # API Keys
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY     = [YOUR_GOOGLE_MAPS_API_KEY]
@@ -76,7 +72,7 @@ echo ""
 echo "After first successful deployment:"
 echo "1. Set up DNS: Add A records pointing joi.taxi to 104.152.211.26"
 echo "2. Set up Tailscale DNS: Run ./scripts/setup-split-dns.sh locally"
-echo "3. Join Tailscale network to access admin interfaces"
+echo "3. Create basic auth credentials for admin access"
 echo ""
 
 echo "✅ Benefits of GitHub Actions Deployment:"

@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { CarpoolDriver, CarpoolPassenger } from '@/types'
 import { Language, useTranslation } from '@/lib/i18n'
 import RouteMap from './RouteMap'
+import PlacesAutocomplete from './PlacesAutocomplete'
+import { calculateDistance, DistanceInfo, formatDuration } from '@/lib/mapsUtils'
 
 interface CarpoolFormProps {
   language: Language
@@ -17,6 +19,9 @@ export default function CarpoolForm({ language }: CarpoolFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [expandedDriver, setExpandedDriver] = useState<string | null>(null)
+  const [driverDistances, setDriverDistances] = useState<{ [key: string]: DistanceInfo }>({})
+  const [passengerDistances, setPassengerDistances] = useState<{ [key: string]: DistanceInfo }>({})
+  const [loadingDistances, setLoadingDistances] = useState<{ [key: string]: boolean }>({})
 
   // Destination address
   const DESTINATION = "Linnetsstígur 6, 220 Hafnarfjörður"
@@ -43,6 +48,56 @@ export default function CarpoolForm({ language }: CarpoolFormProps) {
   useEffect(() => {
     fetchCarpoolData()
   }, [])
+
+  // Calculate distances for drivers when they're loaded
+  useEffect(() => {
+    if (drivers.length > 0 && GOOGLE_MAPS_API_KEY !== "YOUR_API_KEY_HERE") {
+      drivers.forEach(driver => {
+        if (driver.departureLocation && !driverDistances[driver.id!]) {
+          calculateDriverDistance(driver.id!, driver.departureLocation)
+        }
+      })
+    }
+  }, [drivers, GOOGLE_MAPS_API_KEY])
+
+  // Calculate distances for passengers when they're loaded
+  useEffect(() => {
+    if (passengers.length > 0 && GOOGLE_MAPS_API_KEY !== "YOUR_API_KEY_HERE") {
+      passengers.forEach(passenger => {
+        if (passenger.pickupLocation && !passengerDistances[passenger.id!]) {
+          calculatePassengerDistance(passenger.id!, passenger.pickupLocation)
+        }
+      })
+    }
+  }, [passengers, GOOGLE_MAPS_API_KEY])
+
+  const calculateDriverDistance = async (driverId: string, origin: string) => {
+    setLoadingDistances(prev => ({ ...prev, [`driver-${driverId}`]: true }))
+    try {
+      const distance = await calculateDistance(origin, DESTINATION)
+      if (distance) {
+        setDriverDistances(prev => ({ ...prev, [driverId]: distance }))
+      }
+    } catch (error) {
+      console.error('Error calculating driver distance:', error)
+    } finally {
+      setLoadingDistances(prev => ({ ...prev, [`driver-${driverId}`]: false }))
+    }
+  }
+
+  const calculatePassengerDistance = async (passengerId: string, origin: string) => {
+    setLoadingDistances(prev => ({ ...prev, [`passenger-${passengerId}`]: true }))
+    try {
+      const distance = await calculateDistance(origin, DESTINATION)
+      if (distance) {
+        setPassengerDistances(prev => ({ ...prev, [passengerId]: distance }))
+      }
+    } catch (error) {
+      console.error('Error calculating passenger distance:', error)
+    } finally {
+      setLoadingDistances(prev => ({ ...prev, [`passenger-${passengerId}`]: false }))
+    }
+  }
 
   const fetchCarpoolData = async () => {
     try {
@@ -215,14 +270,19 @@ export default function CarpoolForm({ language }: CarpoolFormProps) {
             <label htmlFor="departure-location" className="block text-sm font-medium text-gray-700 mb-2">
               Departure Location *
             </label>
-            <input
-              type="text"
-              id="departure-location"
+            <PlacesAutocomplete
+              value={driverForm.departureLocation || ''}
+              onChange={(value, place) => {
+                setDriverForm({...driverForm, departureLocation: value})
+                // Calculate distance when location is selected
+                if (place && place.formatted_address) {
+                  const driverId = `temp-${Date.now()}`
+                  calculateDriverDistance(driverId, place.formatted_address)
+                }
+              }}
+              placeholder="Search for departure location in Iceland..."
               required
-              value={driverForm.departureLocation}
-              onChange={(e) => setDriverForm({...driverForm, departureLocation: e.target.value})}
-              placeholder="e.g., Reykjavik downtown, Kópavogur, etc."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              apiKey={GOOGLE_MAPS_API_KEY}
             />
           </div>
 
@@ -313,14 +373,19 @@ export default function CarpoolForm({ language }: CarpoolFormProps) {
             <label htmlFor="pickup-location" className="block text-sm font-medium text-gray-700 mb-2">
               Pickup Location *
             </label>
-            <input
-              type="text"
-              id="pickup-location"
+            <PlacesAutocomplete
+              value={passengerForm.pickupLocation || ''}
+              onChange={(value, place) => {
+                setPassengerForm({...passengerForm, pickupLocation: value})
+                // Calculate distance when location is selected
+                if (place && place.formatted_address) {
+                  const passengerId = `temp-${Date.now()}`
+                  calculatePassengerDistance(passengerId, place.formatted_address)
+                }
+              }}
+              placeholder="Search for pickup location in Iceland..."
               required
-              value={passengerForm.pickupLocation}
-              onChange={(e) => setPassengerForm({...passengerForm, pickupLocation: e.target.value})}
-              placeholder="e.g., Reykjavik downtown, Kópavogur, etc."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              apiKey={GOOGLE_MAPS_API_KEY}
             />
           </div>
 
@@ -365,6 +430,14 @@ export default function CarpoolForm({ language }: CarpoolFormProps) {
                     <div className="text-sm text-gray-600">
                       From: {driver.departureLocation} • Time: {driver.departureTime} • Seats: {driver.availableSeats}
                     </div>
+                    {driverDistances[driver.id!] && (
+                      <div className="text-sm text-blue-600 font-medium">
+                        📍 {driverDistances[driver.id!].distance} • ⏱️ {formatDuration(driverDistances[driver.id!].durationValue)} to venue
+                      </div>
+                    )}
+                    {loadingDistances[`driver-${driver.id}`] && (
+                      <div className="text-sm text-gray-500">Calculating distance...</div>
+                    )}
                     {driver.phone && (
                       <div className="text-sm text-gray-600">Phone: {driver.phone}</div>
                     )}
@@ -395,6 +468,47 @@ export default function CarpoolForm({ language }: CarpoolFormProps) {
                     )}
                   </div>
                 )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {passengers.length > 0 && (
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold mb-4">Passengers Looking for Rides</h3>
+          <div className="space-y-4">
+            {passengers.map(passenger => (
+              <div key={passenger.id} className="bg-green-50 p-4 rounded-lg border border-green-200">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="font-medium">{passenger.name}</div>
+                    <div className="text-sm text-gray-600">
+                      Pickup from: {passenger.pickupLocation}
+                    </div>
+                    {passengerDistances[passenger.id!] && (
+                      <div className="text-sm text-green-600 font-medium">
+                        📍 {passengerDistances[passenger.id!].distance} • ⏱️ {formatDuration(passengerDistances[passenger.id!].durationValue)} to venue
+                      </div>
+                    )}
+                    {loadingDistances[`passenger-${passenger.id}`] && (
+                      <div className="text-sm text-gray-500">Calculating distance...</div>
+                    )}
+                    {passenger.phone && (
+                      <div className="text-sm text-gray-600">Phone: {passenger.phone}</div>
+                    )}
+                    {passenger.driverId && (
+                      <div className="text-sm text-green-700 font-medium">
+                        ✅ Matched with driver: {drivers.find(d => d.id === passenger.driverId)?.name || 'Unknown'}
+                      </div>
+                    )}
+                  </div>
+                  {!passenger.driverId && (
+                    <div className="ml-4 px-3 py-1 text-sm bg-green-600 text-white rounded">
+                      Looking for ride
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
