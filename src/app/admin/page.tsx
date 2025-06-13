@@ -96,12 +96,25 @@ export default function AdminPage() {
     if (!confirm('Are you sure you want to delete this item?')) return
 
     try {
-      const response = await fetch(`/api/admin/${type}/${id}`, {
+      let url: string
+      
+      if (type === 'drivers' || type === 'passengers') {
+        // For carpool items, use the carpool endpoint with query params
+        const carpoolType = type === 'drivers' ? 'driver' : 'passenger'
+        url = `/api/admin/carpool?id=${id}&type=${carpoolType}`
+      } else {
+        // For other items, use the standard endpoint
+        url = `/api/admin/${type}/${id}`
+      }
+
+      const response = await fetch(url, {
         method: 'DELETE'
       })
 
       if (response.ok) {
         fetchAllData() // Refresh data
+      } else {
+        console.error('Delete failed:', response.status, response.statusText)
       }
     } catch (error) {
       console.error('Error deleting item:', error)
