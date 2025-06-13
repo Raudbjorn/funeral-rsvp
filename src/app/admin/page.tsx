@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { RSVP, CarpoolDriver, CarpoolPassenger, Photo } from '@/types'
-import { calculateCarpoolMatches, DistanceInfo } from '@/lib/mapsUtils'
 
 export default function AdminPage() {
   const [rsvps, setRsvps] = useState<RSVP[]>([])
@@ -10,8 +9,6 @@ export default function AdminPage() {
   const [passengers, setPassengers] = useState<CarpoolPassenger[]>([])
   const [photos, setPhotos] = useState<Photo[]>([])
   const [loading, setLoading] = useState(true)
-  const [carpoolMatches, setCarpoolMatches] = useState<any[]>([])
-  const [loadingMatches, setLoadingMatches] = useState(false)
   const [activeTab, setActiveTab] = useState<'overview' | 'rsvps' | 'carpool' | 'photos'>('overview')
 
   useEffect(() => {
@@ -48,49 +45,6 @@ export default function AdminPage() {
     }
   }
 
-  const calculateMatches = useCallback(async () => {
-    if (passengers.length === 0 || drivers.length === 0) return
-    
-    // Check if Google Maps API is available
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-    if (!apiKey || apiKey === 'your-google-maps-api-key') {
-      console.warn('Google Maps API key not configured, skipping carpool matching')
-      setCarpoolMatches([])
-      return
-    }
-    
-    setLoadingMatches(true)
-    try {
-      const passengersData = passengers.map(p => ({
-        id: p.id!,
-        location: p.pickupLocation,
-        name: p.name
-      }))
-      
-      const driversData = drivers.map(d => ({
-        id: d.id!,
-        departureLocation: d.departureLocation,
-        name: d.name,
-        availableSeats: d.availableSeats
-      }))
-      
-      const matches = await calculateCarpoolMatches(passengersData, driversData)
-      setCarpoolMatches(matches)
-    } catch (error) {
-      console.error('Error calculating matches:', error)
-      // Set empty matches on error to prevent infinite loop
-      setCarpoolMatches([])
-    } finally {
-      setLoadingMatches(false)
-    }
-  }, [passengers, drivers])
-
-  // Calculate matches when carpool data is loaded
-  useEffect(() => {
-    if (drivers.length > 0 && passengers.length > 0) {
-      calculateMatches()
-    }
-  }, [drivers, passengers, calculateMatches])
 
   const deleteItem = async (type: string, id: string) => {
     if (!confirm('Are you sure you want to delete this item?')) return
@@ -327,88 +281,125 @@ export default function AdminPage() {
 
           {activeTab === 'carpool' && (
             <div className="space-y-6">
+              {/* Drivers Section */}
               <div className="bg-white rounded-lg shadow">
                 <div className="px-6 py-4 border-b">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-semibold">Carpool Matching</h2>
-                    <button
-                      onClick={calculateMatches}
-                      disabled={loadingMatches}
-                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                    >
-                      {loadingMatches ? 'Calculating...' : 'Recalculate Matches'}
-                    </button>
-                  </div>
+                  <h2 className="text-xl font-semibold">Drivers ({drivers.length})</h2>
                 </div>
-                <div className="p-6">
-                  {carpoolMatches.length > 0 ? (
-                    <div className="space-y-6">
-                      {carpoolMatches.map((passenger) => (
-                        <div key={passenger.passengerId} className="border border-gray-200 rounded-lg p-4">
-                          <div className="mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              {passenger.passengerName}
-                            </h3>
-                            <p className="text-sm text-gray-600">
-                              Pickup from: {passenger.passengerLocation}
-                            </p>
-                          </div>
-                          
-                          <div className="space-y-3">
-                            <h4 className="font-medium text-gray-900">Potential Drivers:</h4>
-                            {passenger.matches.length > 0 ? (
-                              passenger.matches.map((match: any) => (
-                                <div
-                                  key={match.driverId}
-                                  className={`p-3 rounded border ${
-                                    match.isReasonable
-                                      ? 'border-green-200 bg-green-50'
-                                      : 'border-yellow-200 bg-yellow-50'
-                                  }`}
-                                >
-                                  <div className="flex justify-between items-start">
-                                    <div>
-                                      <p className="font-medium">{match.driverName}</p>
-                                      <p className="text-sm text-gray-600">
-                                        From: {match.driverLocation}
-                                      </p>
-                                      <p className="text-sm">
-                                        📍 {match.distance.distance} • ⏱️ {match.distance.duration}
-                                      </p>
-                                    </div>
-                                    <div className="text-right">
-                                      <span
-                                        className={`px-2 py-1 text-xs rounded-full ${
-                                          match.isReasonable
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-yellow-100 text-yellow-800'
-                                        }`}
-                                      >
-                                        {match.isReasonable ? 'Good Match' : 'Far Apart'}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))
-                            ) : (
-                              <p className="text-gray-500 italic">No drivers found</p>
-                            )}
-                          </div>
-                        </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Departure</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Seats</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {drivers.map(driver => (
+                        <tr key={driver.id}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {driver.name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {driver.phone || '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {driver.departureLocation}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {driver.departureTime}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {driver.availableSeats}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button
+                              onClick={() => deleteItem('drivers', driver.id!)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
                       ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      {loadingMatches ? (
-                        <div className="flex items-center justify-center">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                          <span className="ml-2">Calculating matches...</span>
-                        </div>
-                      ) : (
-                        'No carpool data available or matches calculated yet'
-                      )}
-                    </div>
-                  )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Passengers Section */}
+              <div className="bg-white rounded-lg shadow">
+                <div className="px-6 py-4 border-b">
+                  <h2 className="text-xl font-semibold">Passengers ({passengers.length})</h2>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pickup Location</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {passengers.map(passenger => (
+                        <tr key={passenger.id}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {passenger.name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {passenger.phone || '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {passenger.pickupLocation}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button
+                              onClick={() => deleteItem('passengers', passenger.id!)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Manual Pairing Instructions */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-blue-900 mb-2">💡 Manual Carpool Coordination</h3>
+                <p className="text-blue-800 mb-4">
+                  Review the drivers and passengers above to manually coordinate carpools. You can contact them directly using their phone numbers or emails.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <h4 className="font-semibold text-blue-900 mb-2">👥 Available Drivers:</h4>
+                    <ul className="space-y-1 text-blue-800">
+                      {drivers.map(driver => (
+                        <li key={driver.id}>
+                          <strong>{driver.name}</strong> - {driver.availableSeats} seats from {driver.departureLocation} at {driver.departureTime}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-blue-900 mb-2">🚶 Passengers Needing Rides:</h4>
+                    <ul className="space-y-1 text-blue-800">
+                      {passengers.map(passenger => (
+                        <li key={passenger.id}>
+                          <strong>{passenger.name}</strong> - pickup from {passenger.pickupLocation}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
