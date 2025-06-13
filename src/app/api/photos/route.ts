@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { promises as fs } from 'fs'
 import path from 'path'
 import { Photo } from '@/types'
-import { photoLimiter, rateLimitCheck, detectSpam, getClientIP, isIcelandicIP, geographicLimiter } from '@/lib/rateLimiter'
 
 const DATA_DIR = path.join(process.cwd(), 'data')
 const PHOTOS_FILE = path.join(DATA_DIR, 'photos.json')
@@ -50,22 +49,6 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const clientIP = getClientIP(request)
-    
-    // Rate limiting for photo uploads
-    const rateLimitPassed = await rateLimitCheck(photoLimiter, clientIP)
-    if (!rateLimitPassed) {
-      return NextResponse.json({ error: 'Too many uploads' }, { status: 429 })
-    }
-    
-    // Geographic restrictions
-    if (!isIcelandicIP(clientIP)) {
-      const geoRateLimitPassed = await rateLimitCheck(geographicLimiter, clientIP)
-      if (!geoRateLimitPassed) {
-        return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
-      }
-    }
-    
     const formData = await request.formData()
     const file = formData.get('photo') as File
     const uploadedBy = formData.get('uploadedBy') as string
@@ -73,11 +56,6 @@ export async function POST(request: NextRequest) {
 
     if (!file || !uploadedBy) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-    }
-    
-    // Spam detection
-    if (detectSpam(uploadedBy) || (caption && detectSpam(caption))) {
-      return NextResponse.json({ error: 'Content not allowed' }, { status: 400 })
     }
     
     // Additional validation

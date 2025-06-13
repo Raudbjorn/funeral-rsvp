@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { promises as fs } from 'fs'
 import path from 'path'
 import { RSVP } from '@/types'
-import { rsvpLimiter, rateLimitCheck, detectSpam, getClientIP, isIcelandicIP, geographicLimiter } from '@/lib/rateLimiter'
 
 const DATA_DIR = path.join(process.cwd(), 'data')
 const RSVP_FILE = path.join(DATA_DIR, 'rsvps.json')
@@ -31,43 +30,11 @@ async function writeRSVPs(rsvps: RSVP[]) {
 
 export async function POST(request: NextRequest) {
   try {
-    const clientIP = getClientIP(request)
-    console.log('RSVP submission from IP:', clientIP)
-    
-    // Rate limiting with error handling
-    try {
-      const rateLimitPassed = await rateLimitCheck(rsvpLimiter, clientIP)
-      if (!rateLimitPassed) {
-        console.log('Rate limit exceeded for IP:', clientIP)
-        return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
-      }
-    } catch (rateLimitError) {
-      console.warn('Rate limit check failed, allowing request:', rateLimitError)
-    }
-    
-    // Geographic restrictions (stricter for non-Iceland IPs)
-    try {
-      if (!isIcelandicIP(clientIP)) {
-        const geoRateLimitPassed = await rateLimitCheck(geographicLimiter, clientIP)
-        if (!geoRateLimitPassed) {
-          console.log('Geographic rate limit exceeded for IP:', clientIP)
-          return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
-        }
-      }
-    } catch (geoRateLimitError) {
-      console.warn('Geographic rate limit check failed, allowing request:', geoRateLimitError)
-    }
-    
     const rsvp: RSVP = await request.json()
     
     // Basic validation
     if (!rsvp.name || typeof rsvp.attending !== 'boolean') {
       return NextResponse.json({ error: 'Invalid data' }, { status: 400 })
-    }
-    
-    // Spam detection
-    if (detectSpam(rsvp.name) || (rsvp.message && detectSpam(rsvp.message))) {
-      return NextResponse.json({ error: 'Content not allowed' }, { status: 400 })
     }
     
     // Additional validation

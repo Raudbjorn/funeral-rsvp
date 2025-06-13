@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { promises as fs } from 'fs'
 import path from 'path'
 import { CarpoolDriver } from '@/types'
-import { carpoolLimiter, rateLimitCheck, detectSpam, getClientIP, isIcelandicIP, geographicLimiter } from '@/lib/rateLimiter'
 
 const DATA_DIR = path.join(process.cwd(), 'data')
 const DRIVERS_FILE = path.join(DATA_DIR, 'drivers.json')
@@ -31,32 +30,11 @@ async function writeDrivers(drivers: CarpoolDriver[]) {
 
 export async function POST(request: NextRequest) {
   try {
-    const clientIP = getClientIP(request)
-    
-    // Rate limiting
-    const rateLimitPassed = await rateLimitCheck(carpoolLimiter, clientIP)
-    if (!rateLimitPassed) {
-      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
-    }
-    
-    // Geographic restrictions
-    if (!isIcelandicIP(clientIP)) {
-      const geoRateLimitPassed = await rateLimitCheck(geographicLimiter, clientIP)
-      if (!geoRateLimitPassed) {
-        return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
-      }
-    }
-    
     const driver: CarpoolDriver = await request.json()
     
     // Basic validation
     if (!driver.name || !driver.departureLocation || !driver.departureTime) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-    }
-    
-    // Spam detection
-    if (detectSpam(driver.name) || detectSpam(driver.departureLocation)) {
-      return NextResponse.json({ error: 'Content not allowed' }, { status: 400 })
     }
     
     // Additional validation
