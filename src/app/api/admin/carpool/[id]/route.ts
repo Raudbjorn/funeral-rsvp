@@ -51,13 +51,14 @@ async function writePassengers(passengers: CarpoolPassenger[]) {
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: 'Access denied' }, { status: 403 })
   }
 
-  const { id } = params
+  const resolvedParams = await params
+  const { id } = resolvedParams
 
   try {
     // Try to delete from drivers first
