@@ -36,40 +36,81 @@ const createLimiter = (options: any) => {
   return new RateLimiterMemory(options)
 }
 
-// Different rate limiters for different endpoints
-export const rsvpLimiter = createLimiter({
-  keyPrefix: 'rsvp',
-  points: 3, // Number of requests
-  duration: 300, // Per 5 minutes
-})
+// Lazy rate limiter creation to avoid build-time errors
+let _rsvpLimiter: any = null
+let _carpoolLimiter: any = null
+let _photoLimiter: any = null
+let _generalLimiter: any = null
+let _geographicLimiter: any = null
 
-export const carpoolLimiter = createLimiter({
-  keyPrefix: 'carpool',
-  points: 5, // Number of requests
-  duration: 300, // Per 5 minutes
-})
+export const rsvpLimiter = {
+  consume: async (key: string) => {
+    if (!_rsvpLimiter) {
+      _rsvpLimiter = createLimiter({
+        keyPrefix: 'rsvp',
+        points: 3, // Number of requests
+        duration: 300, // Per 5 minutes
+      })
+    }
+    return _rsvpLimiter.consume(key)
+  }
+}
 
-export const photoLimiter = createLimiter({
-  keyPrefix: 'photo',
-  points: 10, // Number of uploads
-  duration: 3600, // Per hour
-})
+export const carpoolLimiter = {
+  consume: async (key: string) => {
+    if (!_carpoolLimiter) {
+      _carpoolLimiter = createLimiter({
+        keyPrefix: 'carpool',
+        points: 5, // Number of requests
+        duration: 300, // Per 5 minutes
+      })
+    }
+    return _carpoolLimiter.consume(key)
+  }
+}
 
-export const generalLimiter = createLimiter({
-  keyPrefix: 'general',
-  points: 50, // Number of requests
-  duration: 900, // Per 15 minutes
-})
+export const photoLimiter = {
+  consume: async (key: string) => {
+    if (!_photoLimiter) {
+      _photoLimiter = createLimiter({
+        keyPrefix: 'photo',
+        points: 10, // Number of uploads
+        duration: 3600, // Per hour
+      })
+    }
+    return _photoLimiter.consume(key)
+  }
+}
+
+export const generalLimiter = {
+  consume: async (key: string) => {
+    if (!_generalLimiter) {
+      _generalLimiter = createLimiter({
+        keyPrefix: 'general',
+        points: 50, // Number of requests
+        duration: 900, // Per 15 minutes
+      })
+    }
+    return _generalLimiter.consume(key)
+  }
+}
 
 // Geographic rate limiting (stricter for non-Iceland IPs)
-export const geographicLimiter = createLimiter({
-  keyPrefix: 'geo',
-  points: 1, // Very restrictive for non-Iceland
-  duration: 3600, // Per hour
-})
+export const geographicLimiter = {
+  consume: async (key: string) => {
+    if (!_geographicLimiter) {
+      _geographicLimiter = createLimiter({
+        keyPrefix: 'geo',
+        points: 1, // Very restrictive for non-Iceland
+        duration: 3600, // Per hour
+      })
+    }
+    return _geographicLimiter.consume(key)
+  }
+}
 
 export async function rateLimitCheck(
-  limiter: RateLimiterMemory | RateLimiterRedis,
+  limiter: { consume: (key: string) => Promise<any> },
   key: string
 ): Promise<boolean> {
   try {
